@@ -1,10 +1,10 @@
-# Keyless Access for Off-Cloud Agents
+# Keyless AWS and Tailnet Access for Off-Cloud Agents
 
 An OpenAB agent running outside AWS can obtain scoped, short-lived credentials for AWS and a Tailscale tailnet without storing any long-lived secret in the container — no static access key, no tailnet auth-key. Each credential is minted on demand and expires on its own.
 
 This is a community-contributed pattern, not an OpenAB-official standard. It layers on top of OpenAB: OpenAB stays the thin broker, and credential identity is owned in the layer above it. Roadmap items are tagged **[Today]** / **[Proposed]** / **[Vision]** so nothing aspirational reads as shipped.
 
-**Scope of "keyless."** The claim covers the **AWS and tailnet legs**, where nothing long-lived sits in the runtime. It does **not** cover GitHub: the reference deployment's GitHub leg still puts a long-lived GitHub App private key in the agent runtime and lets each agent mint its own installation tokens. That is not an oversight in the implementation — it is the ceiling of what a federated AWS identity can reach, and closing it needs a component this pattern does not itself provide. See [The GitHub leg](#the-github-leg--where-aws-identity-runs-out).
+**Why the title names AWS and the tailnet, and not GitHub.** GitHub sits deliberately outside the claim: the reference deployment's GitHub leg still puts a long-lived App private key in the agent runtime and lets each agent mint its own installation tokens. That is not an implementation gap — it is the ceiling of what a federated AWS identity can reach, and closing it needs a component this pattern does not itself provide. See [The GitHub leg](#the-github-leg--where-aws-identity-runs-out).
 
 Even on the legs it does cover, trust rests on durable controls configured out-of-band — an X.509 trust anchor, IAM role trust policies, KMS key policies, and tailnet config. Only the credential the agent actually holds is short-lived and scoped. (A stricter term is *long-lived-secretless*.)
 
