@@ -2,7 +2,7 @@
 
 An OpenAB agent running outside AWS can obtain scoped, short-lived credentials for AWS and a Tailscale tailnet without storing any long-lived secret in the container — no static access key, no tailnet auth-key. Each credential is minted on demand and expires on its own.
 
-This is a community-contributed pattern, not an OpenAB-official standard. It layers on top of OpenAB: OpenAB stays the thin broker, and credential identity is owned in the layer above it. Roadmap items are tagged **[Today]** / **[Proposed]** / **[Vision]** so nothing aspirational reads as shipped.
+This is a community-contributed pattern, not an OpenAB-official standard. It layers on top of OpenAB: OpenAB stays the [thin broker](../00-what-is-openab.md), and credential identity is owned in the layer above it. Roadmap items are tagged **[Today]** / **[Proposed]** / **[Vision]** so nothing aspirational reads as shipped.
 
 **Why the title names AWS and the tailnet, and not GitHub.** GitHub sits deliberately outside the claim: the reference deployment's GitHub leg still puts a long-lived App private key in the agent runtime and lets each agent mint its own installation tokens. That is not an implementation gap — it is the ceiling of what a federated AWS identity can reach, and closing it needs a component this pattern does not itself provide. See [The GitHub leg](#the-github-leg--where-aws-identity-runs-out).
 
@@ -343,12 +343,8 @@ SecureString plus a per-principal KMS grant is access control on *retrieval*; it
 
 ## Further Reading
 
-- [Secrets Strategy](../04-decision-trees/secrets-strategy.md) — OpenAB's own secrets, resolved at boot and never passed to agents; the complement to the agent workload credentials this page covers.
-- [MCP Facade](../01-core-concepts/mcp-facade.md) — where an external credential broker attaches as a downstream provider.
-- [Run a Governed Community Bot](./run-a-governed-community-bot.md)
-- [Deploy Multiple Agents](./deploy-multi-agent.md)
-- [Hook Into the Lifecycle](./hook-into-lifecycle.md)
-- [What is OpenAB](../00-what-is-openab.md) — the thin-broker, "own the layers above" philosophy this pattern builds on.
+- [Secrets Strategy](../04-decision-trees/secrets-strategy.md) — OpenAB's own secrets, resolved at boot and never passed to agents; the complement to the agent workload credentials this page covers
+- [MCP Facade](../01-core-concepts/mcp-facade.md) — where an external credential broker attaches as a downstream provider
 
 **Primary sources (re-verified 2026-08-04):**
 
