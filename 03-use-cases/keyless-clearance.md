@@ -1,8 +1,8 @@
 # Keyless Access for Off-Cloud Agents
 
-An openab agent running outside AWS can obtain scoped, short-lived credentials for AWS and a Tailscale tailnet without storing any long-lived secret in the container — no static access key, no tailnet auth-key. Each credential is minted on demand and expires on its own.
+An OpenAB agent running outside AWS can obtain scoped, short-lived credentials for AWS and a Tailscale tailnet without storing any long-lived secret in the container — no static access key, no tailnet auth-key. Each credential is minted on demand and expires on its own.
 
-This is a community-contributed pattern, not an openab-official standard. It layers on top of openab: openab stays the thin broker, and credential identity is owned in the layer above it. Roadmap items are tagged **[Today]** / **[Proposed]** / **[Vision]** so nothing aspirational reads as shipped.
+This is a community-contributed pattern, not an OpenAB-official standard. It layers on top of OpenAB: OpenAB stays the thin broker, and credential identity is owned in the layer above it. Roadmap items are tagged **[Today]** / **[Proposed]** / **[Vision]** so nothing aspirational reads as shipped.
 
 **Scope of "keyless."** The claim covers the **AWS and tailnet legs**, where nothing long-lived sits in the runtime. It does **not** cover GitHub: the reference deployment's GitHub leg still puts a long-lived GitHub App private key in the agent runtime and lets each agent mint its own installation tokens. That is not an oversight in the implementation — it is the ceiling of what a federated AWS identity can reach, and closing it needs a component this pattern does not itself provide. See [The GitHub leg](#the-github-leg--where-aws-identity-runs-out).
 
@@ -25,7 +25,7 @@ An off-cloud agent reaches a tailnet in three legs:
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Ag as openab agent
+    participant Ag as OpenAB agent
     participant RA as Roles Anywhere
     participant STS as AWS STS (issuer + JWKS)
     participant TS as Tailscale
@@ -141,7 +141,7 @@ profile = ra.CfnProfile(self, "RaProfile", name="ra-telescope-ro",
 Two notes on that deny statement, both learned by getting them wrong first:
 
 - **Wildcard the deny; do not enumerate.** An enumerated list missed `ssm:GetParameterHistory`, which returns parameter values just like `GetParameter`. The same shape of gap exists for `s3:GetObjectVersion` / `GetObjectAttributes` and `secretsmanager:BatchGetSecretValue`. A deny face costs nothing to widen when the principal should touch none of these APIs, and a wildcard covers value-returning APIs that do not exist yet.
-- **`sts:AssumeRoot` needs its own entry.** `sts:AssumeRole*` does not match it — the string is `AssumeRo-ot`, not `AssumeRole-*`. The highest-privilege pivot in the account falls just outside the wildcard that looks like it closed the pivot surface.
+- **`sts:AssumeRoot` needs its own entry.** `sts:AssumeRole*` expands from the literal prefix `AssumeRole`, so it covers `AssumeRole`, `AssumeRoleWithSAML`, and `AssumeRoleWithWebIdentity` — and nothing else. `AssumeRoot` is a separate action whose name is not that prefix plus a suffix, so the wildcard never reaches it. The highest-privilege pivot in the account falls just outside the wildcard that looks like it closed the pivot surface.
 
 `kms:Decrypt` in particular is not decorative: any API that returns a KMS-encrypted value decrypts using the *caller's* credentials, so this explicit deny keeps such values masked even where a read permission exists elsewhere in the policy.
 
@@ -334,9 +334,9 @@ SecureString plus a per-principal KMS grant is access control on *retrieval*; it
 | `aws:TokenIssueTime` deny as the instant session kill-switch | Today |
 | Imported CRL for per-leaf revocation (self-managed CA) | Proposed |
 | GitHub App key in the agent runtime → self-minted installation token | Today (**not keyless — the ceiling**) |
-| Mint-time `repositories` / `permissions` narrowing on GitHub tokens | Needs a broker |
-| Per-purpose git credential (`contents:write`, one repo, own cache) | Needs a broker |
-| Default-deny per-agent policy + central issuance ledger | Needs a broker |
+| Mint-time `repositories` / `permissions` narrowing on GitHub tokens | Proposed (needs a broker) |
+| Per-purpose git credential (`contents:write`, one repo, own cache) | Proposed (needs a broker) |
+| Default-deny per-agent policy + central issuance ledger | Proposed (needs a broker) |
 | Credential broker service holding the App key (e.g. octobroker) | Proposed (external project) |
 | Backend traits `CredentialBackend` / `UpstreamClient` / `PolicyClassifier` | Proposed (octobroker#54) |
 | Tailnet/AWS broker backend | Vision |
